@@ -1,3 +1,4 @@
+.DS_Store
 .sconsign.dblite
 abc.history
 hardware.*
@@ -6,3 +7,4 @@ hardware.*
 *.bin
 *.vcd
 *_tb
+*.gtkw

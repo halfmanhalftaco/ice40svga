@@ -27,6 +27,11 @@ module vga_sync (
   // Counters for current line/column
   reg [11:0] line;
   reg [11:0] col;
+  
+  initial begin
+    line = 0;
+    col = 0;
+  end
 
   wire h_done = (col == h_line_end);
   wire v_done = (line == v_frame_end);
