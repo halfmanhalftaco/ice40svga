@@ -1,5 +1,5 @@
 module vga_sync (
-  input clk_pixel,		// 40MHz input
+  input clk_pixel,
 
   output hsync,
   output vsync,
@@ -33,35 +33,33 @@ module vga_sync (
     col = 0;
   end
 
-  wire h_done = (col == h_line_end);
-  wire v_done = (line == v_frame_end);
+  wire h_done = (col == h_line_end - 1);
+  wire v_done = (line == v_frame_end - 1);
 
-  // increment column counter on each pixel clock
+  // increment counters
   always @(posedge clk_pixel)
   begin
     if(h_done)
-      col <= 0;
+      begin
+        col <= 0;
+        if(v_done)
+          line <= 0;
+        else
+          line <= line + 1;
+      end
     else
       col <= col + 1;
   end
 
-  // increment line counter at end of each line
-  always @(posedge h_done)
-  begin
-    if(v_done)
-      line <= 0;
-    else
-      line <= line + 1;
-  end
 
   // generate sync pulses
   reg vga_HS, vga_VS;
   always @(posedge clk_pixel)
   begin
-    vga_HS <= (col >= h_sync_start && col < h_sync_end);
+    vga_HS <= (col >= h_sync_start-1 && col < h_sync_end-1);
     vga_VS <= (line >= v_sync_start && line < v_sync_end);
-    vblank <= line >= v_lines;
-    hblank <= col >= h_pixels;
+    vblank <= line >= v_lines && line < v_frame_end;
+    hblank <= col >= h_pixels-1 && col < h_line_end - 1;
   end
 
   // SVGA 800x600 sync pulse is positive polarity
