@@ -73,25 +73,26 @@ module svga(
   assign hsync = vga_HS;
   assign vsync = vga_VS;
 
-  // generate SMTPE-style color bars
-  
+  // generate SMPTE-style color bars
+
   reg [7:0] bar_count;
+  reg [2:0] bar;
   wire bar_edge = (bar_count == 114);
   always @(posedge clk_vga)
   begin
-	if(in_line && bar_count < 114)
-		bar_count <= bar_count + 1;
+	if(in_line)
+    if(bar_count < 114)
+		  bar_count <= bar_count + 1;
+    else
+      begin
+        bar <= bar + 1;
+        bar_count <= 0;
+      end
 	else
-		bar_count <= 0;
-  end
-  
-  reg [2:0] bar;
-  always @(posedge bar_edge)
-  begin
-  	if(bar < 6)
-		bar <= bar + 1;
-	else
-		bar <= 0;
+    begin
+      bar <= 0;
+		  bar_count <= 0;
+    end
   end
 
   // generate some colors
@@ -144,6 +145,6 @@ module svga(
           blue <= 4'b0000;
       end
   end
-  
+
 
 endmodule
