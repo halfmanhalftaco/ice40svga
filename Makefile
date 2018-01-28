@@ -1,5 +1,5 @@
 TOP = svga
-SRC = svga.v pll.v
+SRC = svga.v svga_sync.v pll.v
 
 all: ${TOP}.bin
 	
