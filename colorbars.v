@@ -1,4 +1,4 @@
-module svga(
+module colorbars (
   input clk,
 
   output [3:0] LED,
@@ -23,7 +23,7 @@ module svga(
     svga_div <= svga_div + 1;
 
   reg hblank, vblank;
-  svga_sync svga_sync (.clk_svga(clk_svga), .hsync(hsync), .vsync(vsync), .hblank(hblank), .vblank(vblank));
+  vga_sync vga_sync (.clk_pixel(clk_svga), .hsync(hsync), .vsync(vsync), .hblank(hblank), .vblank(vblank));
   wire in_display = ~(hblank | vblank);
 
   // generate SMPTE-style color bars

@@ -1,10 +1,12 @@
-TOP = svga
-SRC = svga.v svga_sync.v pll.v
+TOP = colorbars
+SRC = colorbars.v vga_sync.v pll.v
 
 all: ${TOP}.bin
 	
 clean:
-	rm -f ${TOP}.{asc,bin,blif}
+	rm -f ${TOP}.{asc,bin,blif} *.vcd *_tb
+	
+sim: vga_sync_tb.vcd
 
 time: ${TOP}.asc ${TOP}.pcf
 	icetime -d hx8k -p ${TOP}.pcf -P tq144 -t ${TOP}.asc
@@ -18,4 +20,8 @@ ${TOP}.asc: ${TOP}.blif ${TOP}.pcf
 ${TOP}.blif: ${SRC}
 	yosys -q -p 'synth_ice40 -top ${TOP} -blif $@' ${SRC}
 
+%_tb: %_tb.v %.v
+	iverilog -o $@ $^
 
+%_tb.vcd: %_tb
+	vvp -N $<

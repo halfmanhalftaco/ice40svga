@@ -4,3 +4,5 @@ hardware.*
 *.asc
 *.blif
 *.bin
+*.vcd
+*_tb
