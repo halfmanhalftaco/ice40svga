@@ -39,6 +39,7 @@ module svga(
 
   wire h_done = (col == h_pixel_end);
   wire v_done = (line == v_lines_end);
+  wire in_line = (col >= h_pixel_start);
 
   // increment column counter on each pixel clock
   always @(posedge clk_vga)
@@ -74,11 +75,23 @@ module svga(
 
   // generate SMTPE-style color bars
   
-  reg [2:0] bar;
+  reg [7:0] bar_count;
+  wire bar_edge = (bar_count == 114);
   always @(posedge clk_vga)
   begin
-	if(in_display)
-		bar <= (col - h_pixel_start) % 114;
+	if(in_line && bar_count < 114)
+		bar_count <= bar_count + 1;
+	else
+		bar_count <= 0;
+  end
+  
+  reg [2:0] bar;
+  always @(posedge bar_edge)
+  begin
+  	if(bar < 6)
+		bar <= bar + 1;
+	else
+		bar <= 0;
   end
 
   // generate some colors

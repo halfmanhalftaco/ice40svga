@@ -13,7 +13,7 @@ ${TOP}.bin: ${TOP}.asc
 	icepack ${TOP}.asc $@ 
 
 ${TOP}.asc: ${TOP}.blif ${TOP}.pcf
-	arachne-pnr -q -d 8k -P tq144:4k -o $@ -p ${TOP}.pcf ${TOP}.blif
+	arachne-pnr -d 8k -P tq144:4k -o $@ -p ${TOP}.pcf ${TOP}.blif
 
 ${TOP}.blif: ${SRC}
 	yosys -q -p 'synth_ice40 -top ${TOP} -blif $@' ${SRC}
