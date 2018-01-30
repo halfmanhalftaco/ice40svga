@@ -14,7 +14,7 @@ module colorbars (
   assign LED = {3'bzzz, locked};
 
   // Generate 160MHz
-  pll pll (.clock_in(clk), .clock_out(clk160), .locked(locked));
+  pll160 pll (.clock_in(clk), .clock_out(clk160), .locked(locked));
 
   // div/4 for svga pixel clock 160/4 = 40MHz
   reg [1:0] svga_div;

@@ -1,5 +1,5 @@
 TOP = colorbars
-SRC = colorbars.v vga_sync.v pll.v
+SRC = colorbars.v vga_sync.v pll160.v
 
 all: ${TOP}.bin
 	

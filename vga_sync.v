@@ -1,11 +1,12 @@
 module vga_sync (
   input clk_pixel,
+  input reset,
 
   output hsync,
   output vsync,
   
-  output reg vblank,
-  output reg hblank
+  output hblank,
+  output vblank
 );
 
   // Sync parameters - default 800x600 SVGA
@@ -21,49 +22,57 @@ module vga_sync (
   parameter v_sync_end      = v_sync_start + 4;          // sync pulse
   parameter v_frame_end     = v_sync_end + 23;           // back porch
   
-  parameter h_sync_polarity = 1;
-  parameter v_sync_polarity = 1;
+  parameter hsync_polarity = 1;
+  parameter vsync_polarity = 1;
 
   // Counters for current line/column
-  reg [11:0] line;
-  reg [11:0] col;
+  reg [10:0] col;
+  reg [10:0] line;
   
   initial begin
-    line = 0;
     col = 0;
+    line = 0;
   end
 
   wire h_done = (col == h_line_end - 1);
   wire v_done = (line == v_frame_end - 1);
-
+  
+  reg hsync_reg, vsync_reg;
+  reg hblank_reg, vblank_reg;
+  
   // increment counters
   always @(posedge clk_pixel)
   begin
-    if(h_done)
+    if (reset)
       begin
         col <= 0;
-        if(v_done)
-          line <= 0;
-        else
-          line <= line + 1;
+        line <= 0;
+        hsync_reg <= 0;
+        vsync_reg <= 0;
       end
     else
-      col <= col + 1;
+      begin
+        hsync_reg <= (col >= h_sync_start-1 && col < h_sync_end-1);
+        vsync_reg <= (line >= v_sync_start && line < v_sync_end);
+        hblank_reg <= col >= h_pixels-1 && col < h_line_end - 1;
+        vblank_reg <= line >= v_lines && line < v_frame_end;
+        
+        if(h_done)
+          begin
+            col <= 0;
+            if(v_done)
+              line <= 0;
+            else
+              line <= line + 1;
+          end
+        else
+          col <= col + 1;
+      end
   end
 
-
-  // generate sync pulses
-  reg vga_HS, vga_VS;
-  always @(posedge clk_pixel)
-  begin
-    vga_HS <= (col >= h_sync_start-1 && col < h_sync_end-1);
-    vga_VS <= (line >= v_sync_start && line < v_sync_end);
-    vblank <= line >= v_lines && line < v_frame_end;
-    hblank <= col >= h_pixels-1 && col < h_line_end - 1;
-  end
-
-  // SVGA 800x600 sync pulse is positive polarity
-  assign hsync = h_sync_polarity ? vga_HS : ~vga_HS;
-  assign vsync = v_sync_polarity ? vga_VS : ~vga_VS;
+  assign hsync = hsync_polarity ? hsync_reg : ~hsync_reg;
+  assign vsync = vsync_polarity ? vsync_reg : ~vsync_reg;
+  assign hblank = hblank_reg;
+  assign vblank = vblank_reg;
 
 endmodule
